@@ -7,6 +7,29 @@ function App() {
   const [pets, setPets] = useState([]);
   const [filters, setFilters] = useState({ type: "all" });
 
+  function onAdoptPet (petId) {
+    const newAry = pets.map(pet => {
+      if (pet.id === petId) return {...pet, isAdopted: true}
+      else return pet;
+    })
+    setPets(newAry);
+  }
+
+  function onChangeType (event) {
+    setFilters({...filters,
+      type: event.target.value,
+    });
+  }
+
+  function onFindPetsClick () {
+    let query = "/pets";
+    if (filters.type !== "all") {query += "?" + new URLSearchParams(filters)};
+    
+    fetch(`http://localhost:3001` + query)
+    .then(r => r.json())
+    .then(getR => setPets(getR))
+  }
+
   return (
     <div className="ui container">
       <header>
@@ -15,10 +38,10 @@ function App() {
       <div className="ui container">
         <div className="ui grid">
           <div className="four wide column">
-            <Filters />
+            <Filters onChangeType={onChangeType} onFindPetsClick={onFindPetsClick} />
           </div>
           <div className="twelve wide column">
-            <PetBrowser />
+            <PetBrowser pets={pets} onAdoptPet={onAdoptPet} />
           </div>
         </div>
       </div>
